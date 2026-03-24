@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router";
-import logoImage from "../../assets/2de6da872438abe52acf9274adc00f171585b638.png";
+import logoImage from "../../assets/logo.png";
 import { NAV_ITEMS, isAuthenticatedRoute, isNavItemActive } from "../config/navigation";
 
 // Props for the reusable header component.
@@ -51,7 +51,7 @@ export default function Header({
           <img
             src={logoImage}
             alt="Dvince Logo"
-            className="h-10 md:h-12 lg:h-14 hover:opacity-80 transition-opacity"
+            className="h-10 md:h-12 lg:h-14 w-auto scale-130 origin-left hover:opacity-80 transition"
           />
         </button>
       </div>
@@ -70,7 +70,7 @@ export default function Header({
                   active
                     ? "bg-cyan-500 text-white"
                     : "text-gray-700 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {item.label}
               </button>

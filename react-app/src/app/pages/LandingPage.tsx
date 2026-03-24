@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import PageLayout from '../components/PageLayout';
-import heroImage from "../../assets/576e83bec5288cb17f87584f9092d482364c2e7f.png";
+import greetingImage from "../../assets/greeting.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function LandingPage() {
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 lg:p-12 mb-8">
           <div className="flex flex-col items-center text-center">
             <img
-              src={heroImage}
+              src={greetingImage}
               alt="Three friends making peace signs"
               className="w-full max-w-md md:max-w-lg lg:max-w-xl rounded-xl mb-6"
             />
