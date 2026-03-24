@@ -28,14 +28,14 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/login', { state: { tab: 'signin' } })}
                 className="bg-white text-cyan-500 border-2 border-cyan-500 px-8 py-3 rounded-lg hover:bg-cyan-50 transition-colors text-lg font-semibold min-w-[200px]"
               >
                 Login
               </button>
 
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/login', { state: { tab: 'register' } })}
                 className="bg-cyan-500 text-white px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors text-lg font-semibold min-w-[200px]"
               >
                 Create an Account

@@ -184,11 +184,10 @@ export default function SearchPage() {
 
             <button
               onClick={() => setShowFilters((prev) => !prev)}
-              className={`p-3 rounded-lg transition-colors ${
-                showFilters
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`p-3 rounded-lg transition-colors ${showFilters
+                ? 'bg-cyan-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               aria-label="Open filters"
             >
               <SlidersHorizontal size={24} />
@@ -196,9 +195,10 @@ export default function SearchPage() {
 
             <button
               onClick={handleSearch}
-              className="bg-cyan-500 text-white px-5 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
+              className="bg-cyan-500 text-white p-3 rounded-lg hover:bg-cyan-600 transition-colors flex items-center justify-center"
+              aria-label="Search"
             >
-              Search
+              <Search size={20} />
             </button>
           </div>
 
@@ -303,11 +303,10 @@ export default function SearchPage() {
                       key={level}
                       type="button"
                       onClick={() => setDraftLevel(draftLevel === level ? '' : level)}
-                      className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                        draftLevel === level
-                          ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
-                          : 'border-gray-300 hover:border-cyan-300'
-                      }`}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all ${draftLevel === level
+                        ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
+                        : 'border-gray-300 hover:border-cyan-300'
+                        }`}
                     >
                       {level}
                     </button>
@@ -321,7 +320,7 @@ export default function SearchPage() {
                 onClick={handleSearch}
                 className="bg-cyan-500 text-white px-6 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
               >
-                Apply Filters
+                Apply
               </button>
             </div>
           </div>

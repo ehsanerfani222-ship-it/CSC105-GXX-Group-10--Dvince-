@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router';
 import { Eye, EyeOff } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import {
@@ -9,9 +9,24 @@ import {
   setUserLoggedIn,
 } from '../data/appStorage';
 
+// Shape of the optional router state used to decide
+// which tab should be open when the page loads.
+interface LoginRegisterLocationState {
+  tab?: 'register' | 'signin';
+}
+
 export default function LoginRegister() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'register' | 'signin'>('register');
+  const location = useLocation();
+
+  // Read the requested tab from router state.
+  // If nothing is passed, default to the register tab.
+  const requestedTab =
+    (location.state as LoginRegisterLocationState | null)?.tab === 'signin'
+      ? 'signin'
+      : 'register';
+
+  const [activeTab, setActiveTab] = useState<'register' | 'signin'>(requestedTab);
 
   const [fullName, setFullName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
@@ -27,6 +42,12 @@ export default function LoginRegister() {
   const [signInPassword, setSignInPassword] = useState('');
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [signInError, setSignInError] = useState('');
+
+  // Keep the active tab in sync when the page is opened again
+  // with a different router state, for example from a "Login" button.
+  useEffect(() => {
+    setActiveTab(requestedTab);
+  }, [requestedTab]);
 
   // Validates the email format.
   const validateEmail = (email: string) => {
