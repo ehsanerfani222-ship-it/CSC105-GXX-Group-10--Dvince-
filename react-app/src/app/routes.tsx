@@ -14,96 +14,36 @@ import ChatList from "./pages/ChatList";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import type { ReactElement } from "react";
 
-const RedirectToSearch = () => <Navigate to="/search" replace />;
+// Small helper to avoid repeating <ProtectedRoute>...</ProtectedRoute>
+// for every protected page.
+function withProtectedRoute(element: ReactElement): ReactElement {
+  return <ProtectedRoute>{element}</ProtectedRoute>;
+}
+
+// Small helper to avoid repeating <PublicOnlyRoute>...</PublicOnlyRoute>
+// for public-only pages.
+function withPublicOnlyRoute(element: ReactElement): ReactElement {
+  return <PublicOnlyRoute>{element}</PublicOnlyRoute>;
+}
 
 export const router = createBrowserRouter([
-  // PUBLIC
-  { path: "/", Component: LandingPage },
+  // Public routes
+  { path: "/", element: <LandingPage /> },
+  { path: "/login", element: withPublicOnlyRoute(<LoginRegister />) },
 
-  {
-    path: "/login",
-    element: (
-      <PublicOnlyRoute>
-        <LoginRegister />
-      </PublicOnlyRoute>
-    ),
-  },
+  // Protected routes
+  { path: "/create-profile", element: withProtectedRoute(<CreateProfile />) },
+  { path: "/add-skill", element: withProtectedRoute(<AddSkill />) },
+  { path: "/profile", element: withProtectedRoute(<ViewOwnProfile />) },
+  { path: "/my-skills", element: withProtectedRoute(<ViewOwnSkills />) },
+  { path: "/search", element: withProtectedRoute(<SearchPage />) },
+  { path: "/user/:id", element: withProtectedRoute(<ViewUserProfile />) },
+  { path: "/user/:id/skills", element: withProtectedRoute(<ViewUserSkills />) },
+  { path: "/chat", element: withProtectedRoute(<ChatList />) },
+  { path: "/chat/:id", element: withProtectedRoute(<Chat />) },
 
-  // PROTECTED
-  {
-    path: "/create-profile",
-    element: (
-      <ProtectedRoute>
-        <CreateProfile />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/add-skill",
-    element: (
-      <ProtectedRoute>
-        <AddSkill />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/profile",
-    element: (
-      <ProtectedRoute>
-        <ViewOwnProfile />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/my-skills",
-    element: (
-      <ProtectedRoute>
-        <ViewOwnSkills />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/search",
-    element: (
-      <ProtectedRoute>
-        <SearchPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/user/:id",
-    element: (
-      <ProtectedRoute>
-        <ViewUserProfile />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/user/:id/skills",
-    element: (
-      <ProtectedRoute>
-        <ViewUserSkills />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/chat",
-    element: (
-      <ProtectedRoute>
-        <ChatList />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/chat/:id",
-    element: (
-      <ProtectedRoute>
-        <Chat />
-      </ProtectedRoute>
-    ),
-  },
-
-  // FALLBACK
+  // Fallback route
   { path: "*", element: <Navigate to="/" replace /> },
 ]);

@@ -1,15 +1,18 @@
 import type { Profile, Skill } from './mockData';
 
-const REGISTERED_ACCOUNT_KEY = 'dvince_registered_account';
-const USER_PROFILE_KEY = 'dvince_user_profile';
+// Storage keys used by the app.
+const ACCOUNTS_KEY = 'dvince_accounts';
+const PROFILES_KEY = 'dvince_profiles';
 const SESSION_KEY = 'dvince_session';
 
+// Registered account shape.
 interface RegisteredAccount {
   fullName: string;
   email: string;
   password: string;
 }
 
+// Stored profile shape for one user.
 interface StoredUserProfile {
   fullName: string;
   email: string;
@@ -22,6 +25,13 @@ interface StoredUserProfile {
   skills: Skill[];
 }
 
+// Session data now stores which email is currently logged in.
+interface SessionData {
+  isLoggedIn: boolean;
+  email: string;
+}
+
+// Generic helper to safely read JSON from localStorage.
 function readJson<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key);
@@ -31,26 +41,109 @@ function readJson<T>(key: string): T | null {
   }
 }
 
+// Normalize emails so lookups are consistent.
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+// Read all registered accounts as a map by normalized email.
+function getAccountsMap(): Record<string, RegisteredAccount> {
+  return readJson<Record<string, RegisteredAccount>>(ACCOUNTS_KEY) ?? {};
+}
+
+// Save all registered accounts.
+function saveAccountsMap(accounts: Record<string, RegisteredAccount>) {
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+}
+
+// Read all stored profiles as a map by normalized email.
+function getProfilesMap(): Record<string, StoredUserProfile> {
+  return readJson<Record<string, StoredUserProfile>>(PROFILES_KEY) ?? {};
+}
+
+// Save all stored profiles.
+function saveProfilesMap(profiles: Record<string, StoredUserProfile>) {
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+}
+
+// Read the current session.
+function getSession(): SessionData | null {
+  return readJson<SessionData>(SESSION_KEY);
+}
+
+// Returns the currently logged-in user's normalized email.
+function getCurrentSessionEmail(): string | null {
+  const session = getSession();
+
+  if (!session?.isLoggedIn || !session.email) {
+    return null;
+  }
+
+  return normalizeEmail(session.email);
+}
+
+// Create an empty profile for a specific account.
+// This is important when a brand-new user registers.
+function createEmptyProfile(account: Pick<RegisteredAccount, 'fullName' | 'email'>): StoredUserProfile {
+  return {
+    fullName: account.fullName,
+    email: account.email,
+    username: '',
+    phoneNumber: '',
+    dateOfBirth: '',
+    country: '',
+    city: '',
+    profilePicture: '',
+    skills: [],
+  };
+}
+
+// Save or update one registered account.
 export function saveRegisteredAccount(account: RegisteredAccount) {
-  localStorage.setItem(REGISTERED_ACCOUNT_KEY, JSON.stringify(account));
+  const emailKey = normalizeEmail(account.email);
+  const accounts = getAccountsMap();
+
+  accounts[emailKey] = {
+    ...account,
+    email: account.email.trim(),
+    fullName: account.fullName.trim(),
+  };
+
+  saveAccountsMap(accounts);
 }
 
-export function getRegisteredAccount(): RegisteredAccount | null {
-  return readJson<RegisteredAccount>(REGISTERED_ACCOUNT_KEY);
+// Get one registered account by email.
+export function getRegisteredAccountByEmail(email: string): RegisteredAccount | null {
+  const accounts = getAccountsMap();
+  return accounts[normalizeEmail(email)] ?? null;
 }
 
+// Get the currently logged-in account.
+export function getCurrentRegisteredAccount(): RegisteredAccount | null {
+  const currentEmail = getCurrentSessionEmail();
+  if (!currentEmail) return null;
+
+  const accounts = getAccountsMap();
+  return accounts[currentEmail] ?? null;
+}
+
+// Validate sign-in against the account belonging to the entered email.
 export function isValidSignIn(email: string, password: string) {
-  const account = getRegisteredAccount();
+  const account = getRegisteredAccountByEmail(email);
   if (!account) return false;
 
-  return (
-    account.email.trim().toLowerCase() === email.trim().toLowerCase() &&
-    account.password === password
-  );
+  return account.password === password;
 }
 
+// Save profile data for the currently logged-in user.
 export function saveUserProfile(profile: Partial<StoredUserProfile>) {
-  const current = getStoredUserProfile();
+  const currentEmail = getCurrentSessionEmail();
+
+  // Without a logged-in user, there is no safe place to store the profile.
+  if (!currentEmail) return;
+
+  const profiles = getProfilesMap();
+  const current = profiles[currentEmail];
 
   const nextProfile: StoredUserProfile = {
     fullName: profile.fullName ?? current?.fullName ?? '',
@@ -64,13 +157,20 @@ export function saveUserProfile(profile: Partial<StoredUserProfile>) {
     skills: profile.skills ?? current?.skills ?? [],
   };
 
-  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(nextProfile));
+  profiles[currentEmail] = nextProfile;
+  saveProfilesMap(profiles);
 }
 
+// Get the stored profile for the currently logged-in user.
 export function getStoredUserProfile(): StoredUserProfile | null {
-  return readJson<StoredUserProfile>(USER_PROFILE_KEY);
+  const currentEmail = getCurrentSessionEmail();
+  if (!currentEmail) return null;
+
+  const profiles = getProfilesMap();
+  return profiles[currentEmail] ?? null;
 }
 
+// Save skills for the currently logged-in user.
 export function saveUserSkills(skills: Skill[]) {
   const current = getStoredUserProfile();
 
@@ -80,8 +180,9 @@ export function saveUserSkills(skills: Skill[]) {
   });
 }
 
+// Return the merged current user profile used by the UI.
 export function getCurrentUserProfile(): Profile {
-  const account = getRegisteredAccount();
+  const account = getCurrentRegisteredAccount();
   const profile = getStoredUserProfile();
 
   return {
@@ -98,14 +199,41 @@ export function getCurrentUserProfile(): Profile {
   };
 }
 
-export function setUserLoggedIn() {
-  localStorage.setItem(SESSION_KEY, 'true');
+// Log in a specific user by email.
+export function setUserLoggedIn(email: string) {
+  const session: SessionData = {
+    isLoggedIn: true,
+    email: normalizeEmail(email),
+  };
+
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
+// Register a new user session and create a fresh empty profile if needed.
+export function registerAndInitializeUser(account: RegisteredAccount) {
+  saveRegisteredAccount(account);
+  setUserLoggedIn(account.email);
+
+  const profiles = getProfilesMap();
+  const emailKey = normalizeEmail(account.email);
+
+  // For a newly registered user we want a clean profile.
+  // This prevents old user data from leaking into the new account.
+  profiles[emailKey] = createEmptyProfile({
+    fullName: account.fullName,
+    email: account.email,
+  });
+
+  saveProfilesMap(profiles);
+}
+
+// Clear only the session, not all users' stored data.
 export function logoutUser() {
   localStorage.removeItem(SESSION_KEY);
 }
 
+// Check if a valid session exists.
 export function isUserLoggedIn() {
-  return localStorage.getItem(SESSION_KEY) === 'true';
+  const session = getSession();
+  return Boolean(session?.isLoggedIn && session.email);
 }
