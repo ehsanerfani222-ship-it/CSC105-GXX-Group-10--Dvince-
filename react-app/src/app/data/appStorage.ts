@@ -25,7 +25,7 @@ interface StoredUserProfile {
   skills: Skill[];
 }
 
-// Session data now stores which email is currently logged in.
+// Session data stores which email is currently logged in.
 interface SessionData {
   isLoggedIn: boolean;
   email: string;
@@ -82,6 +82,11 @@ function getCurrentSessionEmail(): string | null {
   return normalizeEmail(session.email);
 }
 
+// Export the current logged-in email for other storage modules.
+export function getCurrentUserEmail(): string | null {
+  return getCurrentSessionEmail();
+}
+
 // Create an empty profile for a specific account.
 // This is important when a brand-new user registers.
 function createEmptyProfile(account: Pick<RegisteredAccount, 'fullName' | 'email'>): StoredUserProfile {
@@ -116,6 +121,11 @@ export function saveRegisteredAccount(account: RegisteredAccount) {
 export function getRegisteredAccountByEmail(email: string): RegisteredAccount | null {
   const accounts = getAccountsMap();
   return accounts[normalizeEmail(email)] ?? null;
+}
+
+// Returns true if an account already exists for the given email.
+export function doesAccountExist(email: string): boolean {
+  return Boolean(getRegisteredAccountByEmail(email));
 }
 
 // Get the currently logged-in account.
@@ -209,22 +219,27 @@ export function setUserLoggedIn(email: string) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
-// Register a new user session and create a fresh empty profile if needed.
-export function registerAndInitializeUser(account: RegisteredAccount) {
+// Register a new user and initialize an empty profile.
+// Returns false if the email already exists.
+export function registerAndInitializeUser(account: RegisteredAccount): boolean {
+  if (doesAccountExist(account.email)) {
+    return false;
+  }
+
   saveRegisteredAccount(account);
   setUserLoggedIn(account.email);
 
   const profiles = getProfilesMap();
   const emailKey = normalizeEmail(account.email);
 
-  // For a newly registered user we want a clean profile.
-  // This prevents old user data from leaking into the new account.
   profiles[emailKey] = createEmptyProfile({
     fullName: account.fullName,
     email: account.email,
   });
 
   saveProfilesMap(profiles);
+
+  return true;
 }
 
 // Clear only the session, not all users' stored data.

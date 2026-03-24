@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import {
   registerAndInitializeUser,
+  doesAccountExist,
   isValidSignIn,
   setUserLoggedIn,
 } from '../data/appStorage';
@@ -51,24 +52,37 @@ export default function LoginRegister() {
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const normalizedEmail = registerEmail.trim().toLowerCase();
+
     const errors = {
       fullName: fullName.trim() ? '' : 'This field is required.',
-      email: registerEmail
-        ? validateEmail(registerEmail)
-          ? ''
-          : 'Please enter a valid email.'
-        : 'This field is required.',
+      email: !registerEmail
+        ? 'This field is required.'
+        : !validateEmail(registerEmail)
+        ? 'Please enter a valid email.'
+        : doesAccountExist(normalizedEmail)
+        ? 'An account with this email already exists.'
+        : '',
       password: registerPassword ? validatePassword(registerPassword) : 'This field is required.',
     };
 
     setRegisterErrors(errors);
 
     if (!errors.fullName && !errors.email && !errors.password) {
-      registerAndInitializeUser({
+      const success = registerAndInitializeUser({
         fullName: fullName.trim(),
-        email: registerEmail.trim(),
+        email: normalizedEmail,
         password: registerPassword,
       });
+
+      // Double safety check in case the state changed between validation and save.
+      if (!success) {
+        setRegisterErrors((current) => ({
+          ...current,
+          email: 'An account with this email already exists.',
+        }));
+        return;
+      }
 
       navigate('/create-profile');
     }

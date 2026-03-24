@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import { findProfile } from '../data/mockData';
 import {
   addMessageToChat,
-  getOrCreateChatByUserId,
+  getChatByUserId,
   markChatAsRead,
   type ChatMessage,
 } from '../data/chatStorage';
@@ -27,25 +27,28 @@ export default function Chat() {
 
   const partner = useMemo(() => findProfile(String(userId)), [userId]);
 
+  // Load existing messages if the chat already exists.
+  // Do not auto-create a chat just by opening the page.
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    const chat = getOrCreateChatByUserId(userId);
-    return chat.messages;
+    const chat = getChatByUserId(userId);
+    return chat?.messages ?? [];
   });
 
   useEffect(() => {
-    const chat = getOrCreateChatByUserId(userId);
-    setMessages(chat.messages);
+    const chat = getChatByUserId(userId);
+    setMessages(chat?.messages ?? []);
     markChatAsRead(userId);
   }, [userId]);
 
+  // Create the chat only when the first real message is sent.
   const handleSendMessage = () => {
     const trimmed = newMessage.trim();
     if (!trimmed) return;
 
     addMessageToChat(userId, trimmed);
 
-    const updatedChat = getOrCreateChatByUserId(userId);
-    setMessages(updatedChat.messages);
+    const updatedChat = getChatByUserId(userId);
+    setMessages(updatedChat?.messages ?? []);
     setNewMessage('');
   };
 
@@ -69,27 +72,33 @@ export default function Chat() {
 
       <main className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-6">
         <div className="max-w-4xl mx-auto space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className="max-w-[75%] md:max-w-[60%]">
-                <div
-                  className={`rounded-2xl px-4 py-3 ${
-                    message.sender === 'me'
-                      ? 'bg-cyan-500 text-white rounded-br-sm'
-                      : 'bg-white text-gray-900 shadow-md rounded-bl-sm'
-                  }`}
-                >
-                  <p className="text-sm md:text-base">{message.text}</p>
-                </div>
-                <p className={`text-xs text-gray-500 mt-1 ${message.sender === 'me' ? 'text-right' : 'text-left'}`}>
-                  {message.timestamp}
-                </p>
-              </div>
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-500 py-12">
+              No messages yet. Start the conversation.
             </div>
-          ))}
+          ) : (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className="max-w-[75%] md:max-w-[60%]">
+                  <div
+                    className={`rounded-2xl px-4 py-3 ${
+                      message.sender === 'me'
+                        ? 'bg-cyan-500 text-white rounded-br-sm'
+                        : 'bg-white text-gray-900 shadow-md rounded-bl-sm'
+                    }`}
+                  >
+                    <p className="text-sm md:text-base">{message.text}</p>
+                  </div>
+                  <p className={`text-xs text-gray-500 mt-1 ${message.sender === 'me' ? 'text-right' : 'text-left'}`}>
+                    {message.timestamp}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </main>
 
