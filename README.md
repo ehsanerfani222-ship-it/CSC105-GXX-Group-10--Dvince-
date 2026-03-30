@@ -29,3 +29,12 @@ Name: Jassmen Osman
 Name :Intouch Lewbandansook
 
 
+Weekly Progress Report 
+
+Student ID             GithubUserName          week 6-8 featur                            week 9 
+68130500873            ehsanerfani222          User Registration and                      Adding skill 
+                                               User Login  (100% completed                 (100% completed)
+  
+
+
+
