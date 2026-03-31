@@ -13,11 +13,9 @@ Name :Intouch Lewbandansook
 
 Weekly Progress Report
 
-Student ID | GithubUserName | week 6-8 featur | week 9
-68130500873| ehsanerfani222  | UX/ UI design (completed)
-68130500873 | ehsanerfani222 | User Registration and | Adding skill | | User Login (100% completed | (100% compeleted)
-68130500872 | shikeb-mohebbi | Home Page | Forgot password | in progress
-68540460084 | jasmin2929 | Profile Creation | Profile Editing | Chat System | 100% completed
-
-
+| Student ID  | GitHub Username | Week 6–8 (Feature) | Week 9 (Progress)                | Status      |
+|-------------|-----------------|--------------------|----------------------------------|-------------|
+| 68130500873 | ehsanerfani222  | UX/ UI design      | User Registration, Adding skill  | Done        |
+| 68130500872 | shikeb-mohebbi  | Home Page          | Forgot password                  | In Progress |
+| 68540460084 | jasmin2929      | Profile Creation   | Profile Editing, Chat System     | Done        |
 
