@@ -269,6 +269,15 @@ export default function LoginRegister() {
                     </button>
                   </div>
                 </div>
+                   <div className="text-right">
+                        <button
+                          type="button"
+                          onClick={() => navigate('/forgot-password')}
+                          className="text-sm text-cyan-500 hover:underline"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
 
                 {signInError && <p className="text-red-500 text-sm">{signInError}</p>}
 
