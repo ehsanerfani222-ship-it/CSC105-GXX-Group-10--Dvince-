@@ -11,6 +11,8 @@ import ViewUserProfile from "./pages/ViewUserProfile";
 import ViewUserSkills from "./pages/ViewUserSkills";
 import Chat from "./pages/Chat";
 import ChatList from "./pages/ChatList";
+import HomePage from "./pages/HomePage"; 
+import ForgotPassword from "./pages/ForgotPassword";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
@@ -32,8 +34,11 @@ export const router = createBrowserRouter([
   // Public routes
   { path: "/", element: <LandingPage /> },
   { path: "/login", element: withPublicOnlyRoute(<LoginRegister />) },
+   { path: "/forgot-password", element: <ForgotPassword /> },
+  
 
   // Protected routes
+  { path: "/home", element: withProtectedRoute(<HomePage />) },
   { path: "/create-profile", element: withProtectedRoute(<CreateProfile />) },
   { path: "/add-skill", element: withProtectedRoute(<AddSkill />) },
   { path: "/profile", element: withProtectedRoute(<ViewOwnProfile />) },
