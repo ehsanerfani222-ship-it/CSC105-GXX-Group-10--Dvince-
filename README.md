@@ -13,9 +13,17 @@ Name :Intouch Lewbandansook
 
 Weekly Progress Report
 
-| Student ID  | GitHub Username | Week 6–8 (Feature) | Week 9 (Progress)                | Status      |
+
 |-------------|-----------------|--------------------|----------------------------------|-------------|
 | 68130500873 | ehsanerfani222  | UX/ UI design      | User Registration, Adding skill  | Done        |
 | 68130500872 | shikeb-mohebbi  | Search functionality          | Forgot password, Home Page                 | Done |
 | 68540460084 | jasmin2929      | Profile Creation   | Profile Editing, Chat System     | Done        |
+
+
+
+
+|Backend Development
+
+| Student ID  | GitHub Username | Week 10 (Feature)                        | Week 11 (Progress) | week 12                | Status      
+|68130500873  |  ehsanerfani222 |Backend API,login/register → backend APIs | /search            | Database and Prisma    | done 
 
