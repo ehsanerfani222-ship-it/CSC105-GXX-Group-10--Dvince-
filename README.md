@@ -25,5 +25,5 @@ Weekly Progress Report
 |Backend Development
 
 | Student ID  | GitHub Username | Week 10 (Feature)                        | Week 11 (Progress) | week 12                | Status      
-|68130500873  |  ehsanerfani222 |Backend API,login/register → backend APIs | /search            | Database and Prisma    | done 
+|68130500873  |  ehsanerfani222 |Backend API,login/register → backend APIs | /search, Date and password verification     | Database and Prisma    | done 
 
