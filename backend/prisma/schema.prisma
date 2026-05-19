@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  password        String
+  name            String
+  username        String?   @unique
+  bio             String?
+  profilePicture  String?
+  phoneNumber     String?
+  dateOfBirth     String?
+  city            String?
+  country         String?
+  resetToken      String?
+  resetExpiry     DateTime?
+  createdAt       DateTime  @default(now())
+
+  // Existing
+  skills           Skill[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  // Instagram-style social system
+  posts            Post[]
+  comments         Comment[]
+  likes            Like[]
+
+  // Followers system
+  followers        Follow[] @relation("UserFollowers")
+  following        Follow[] @relation("UserFollowing")
+}
+
+model Skill {
+  id              Int      @id @default(autoincrement())
+  name            String
+  category        String?
+  subCategory     String?
+  experienceLevel String?
+  description     String?
+  preferences     String?
+
+  // JSON-stringified array
+  scheduleDays    String?
+  scheduleStart   String?
+  scheduleEnd     String?
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int
+
+  createdAt       DateTime @default(now())
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  mediaUrl   String?
+  mediaType  String?
+  reaction   String?
+
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   Int
+
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId Int
+
+  createdAt  DateTime @default(now())
+}
+
+//
+// ==========================
+// INSTAGRAM STYLE POSTS
+// ==========================
+//
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  caption     String?
+  imageUrl    String?
+  videoUrl    String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Author
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+
+  // Relations
+  comments    Comment[]
+  likes       Like[]
+
+  @@index([userId])
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  content     String
+
+  createdAt   DateTime  @default(now())
+
+  // Post
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      Int
+
+  // Author
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model Like {
+  id          Int       @id @default(autoincrement())
+
+  createdAt   DateTime  @default(now())
+
+  // Post
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      Int
+
+  // User
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+
+  // Prevent duplicate likes
+  @@unique([postId, userId])
+
+  @@index([postId])
+  @@index([userId])
+}
+
+//
+// ==========================
+// FOLLOW SYSTEM
+// ==========================
+//
+
+model Follow {
+  id            Int      @id @default(autoincrement())
+
+  follower      User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId    Int
+
+  following     User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId   Int
+
+  createdAt     DateTime @default(now())
+
+  // Prevent duplicate follow
+  @@unique([followerId, followingId])
+
+  @@index([followerId])
+  @@index([followingId])
+}
